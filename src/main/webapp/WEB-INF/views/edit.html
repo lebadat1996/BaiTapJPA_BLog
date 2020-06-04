@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<h3>Modify Blog</h3>
+<p>
+    <a th:href="@{/}">
+        Back to BLog list
+    </a>
+</p>
+<div id="form">
+    <form action="#" th:action="@{/edit}" th:object="${blog}"
+          method="POST" novalidate="novalidate">
+        <input type="hidden" th:field="*{id}"/>
+        <div>
+            <label>NameBlog: </label> <br>
+            <textarea th:field="*{nameBlog}"></textarea>
+        </div>
+        <div>
+            <label>Message: </label><br>
+            <textarea th:field="*{message}"></textarea>
+        </div>
+        <input type="submit" value="Modify">
+    </form>
+</div>
+</body>
+</html>

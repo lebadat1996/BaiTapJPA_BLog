@@ -3,62 +3,50 @@ package com.codegym.controller;
 import com.codegym.model.Blog;
 import com.codegym.service.Blog.IBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/")
+@RestController
+@RequestMapping("/api")
 public class BlogController {
     @Autowired
     private IBlogService blogService;
 
-    @GetMapping
-    public ModelAndView showList() {
-        ModelAndView modelAndView = new ModelAndView("home");
+    @GetMapping("list")
+    public ResponseEntity<List<Blog>> showList() {
         List<Blog> blogList = blogService.findAll();
-        modelAndView.addObject("bloglist", blogList);
-        return modelAndView;
-    }
-
-    @GetMapping("Blog/{id}/edit")
-    public ModelAndView showEdit(@ModelAttribute Blog blog, @PathVariable Long id) {
-        ModelAndView modelAndView = new ModelAndView("edit");
-        Blog blog1 = blogService.findGetById(id);
-        modelAndView.addObject("blog", blog1);
-        return modelAndView;
-    }
-
-    @PostMapping("edit")
-    public ModelAndView edit(@ModelAttribute Blog blog) {
-        ModelAndView modelAndView = new ModelAndView("home");
-        blogService.update(blog);
-        modelAndView.addObject("bloglist", blogService.findAll());
-        return modelAndView;
-    }
-
-    @GetMapping("create")
-    public ModelAndView showCreate() {
-        ModelAndView modelAndView = new ModelAndView("create");
-        modelAndView.addObject("Blog", new Blog());
-        return modelAndView;
+        return new ResponseEntity<>(blogList, HttpStatus.OK);
     }
 
     @PostMapping("create")
-    public ModelAndView create(@ModelAttribute Blog blog) {
-        ModelAndView modelAndView = new ModelAndView("home");
-        blogService.insert(blog);
-        modelAndView.addObject("bloglist", blogService.findAll());
-        return modelAndView;
+    public ResponseEntity<Blog> saveBlog(@RequestBody Blog blog) {
+        blogService.update(blog);
+        return new ResponseEntity<>(blog, HttpStatus.OK);
     }
 
-    @GetMapping("Blog/{id}/delete")
-    public ModelAndView delete(@PathVariable Long id) {
-        ModelAndView modelAndView = new ModelAndView("home");
-        blogService.remove(id);
-        modelAndView.addObject("bloglist", blogService.findAll());
-        return modelAndView;
+    @GetMapping("blog/{id}")
+    public ResponseEntity<Blog> findById(@PathVariable Long id) {
+        Blog blog = blogService.findGetById(id);
+        if (blog == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(blog, HttpStatus.OK);
+        }
+    }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<Blog> delete(@PathVariable Long id) {
+        Blog blog = blogService.findGetById(id);
+        if (blog == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            blogService.remove(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 }
